@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Interaktif Himpunan - Matematika Kelas 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#667eea; --primary-dark:#764ba2;
+  --success:#22c55e; --warning:#f59e0b; --danger:#ef4444;
+  --card:#ffffff; --text:#2d2d44; --muted:#71718a; --border:#e5e5ef;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Poppins','Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;padding:16px;color:var(--text);line-height:1.6;
+}
+.app{max-width:720px;margin:0 auto}
+.header{text-align:center;color:#fff;margin-bottom:18px;padding:18px 12px}
+.mascot{font-size:clamp(3rem,12vw,4.5rem);line-height:1;transition:transform .3s}
+.header h1{font-family:'Baloo 2',cursive;font-size:clamp(1.8rem,7vw,2.6rem);margin-top:6px}
+.subtitle{opacity:.85;font-size:clamp(.9rem,3vw,1.1rem)}
+
+.screen{display:none;animation:fadeIn .4s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:var(--card);border-radius:20px;
+  padding:clamp(18px,5vw,28px);
+  box-shadow:0 10px 40px rgba(0,0,0,.25);
+}
+.card.shake{animation:shake .4s}
+.card.bounce{animation:bounce .5s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+#screen-identity .card{text-align:center}
+#screen-identity h2{font-family:'Baloo 2',cursive;color:var(--primary-dark);margin-bottom:6px}
+#identity-form{display:flex;flex-direction:column;gap:10px;margin-top:18px;text-align:left}
+#identity-form label{font-weight:600;font-size:.95rem}
+input[type=text],input.text-input,textarea.text-area,select.select-input{
+  width:100%;padding:12px 14px;border:2px solid var(--border);
+  border-radius:12px;font-size:1rem;font-family:inherit;transition:border-color .2s;
+}
+input[type=text]:focus,.text-input:focus,.text-area:focus,.select-input:focus{
+  outline:none;border-color:var(--primary);
+}
+.note{font-size:.85rem;color:var(--muted);margin-top:14px;background:#f8f8fc;padding:10px;border-radius:10px;text-align:left}
+
+button{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;border:none;padding:12px 22px;border-radius:12px;
+  font-size:1rem;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;width:100%;
+}
+button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.quiz-meta{margin-bottom:14px;color:#fff}
+.progress-info{display:flex;justify-content:space-between;font-weight:600;margin-bottom:6px;font-size:.95rem;flex-wrap:wrap;gap:6px}
+.progress-bar{background:rgba(255,255,255,.3);border-radius:10px;height:10px;overflow:hidden}
+.progress-fill{background:#ffd700;height:100%;width:0;transition:width .4s;border-radius:10px}
+
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.question-number{font-family:'Baloo 2',cursive;font-size:1.2rem;color:var(--primary-dark);font-weight:700}
+.question-type-badge{background:#eef0ff;color:var(--primary-dark);padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600}
+.question-text{font-size:clamp(1rem,3.5vw,1.15rem);margin-bottom:12px;font-weight:500}
+.question-text b{color:var(--primary-dark)}
+.question-hint{background:#fffbe6;border-left:4px solid var(--warning);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.88rem;color:#7a5a00}
+
+.answer-area{margin-bottom:12px}
+
+.options{display:flex;flex-direction:column;gap:10px}
+.option{display:flex;align-items:center;gap:12px;padding:14px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s}
+.option:hover{border-color:var(--primary);background:#f8f8ff}
+.option input{width:20px;height:20px;accent-color:var(--primary);flex-shrink:0;cursor:pointer}
+.option input:checked + .option-label{font-weight:700}
+.option:has(input:checked){border-color:var(--primary);background:#eef0ff}
+.option-label{font-size:1rem}
+
+.toggle-group{display:flex;gap:12px;justify-content:center}
+.toggle-btn{flex:1;padding:22px 12px;font-size:clamp(1.8rem,8vw,2.6rem);border:3px solid var(--border);background:#fff;border-radius:14px;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--text)}
+.toggle-btn:hover{border-color:var(--primary)}
+.toggle-btn.active{border-color:var(--primary);background:var(--primary);color:#fff;transform:scale(1.05)}
+
+.checkbox-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:480px){.checkbox-grid{grid-template-columns:repeat(2,1fr)}}
+.check-option{display:flex;flex-direction:column;align-items:center;padding:14px 8px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;font-size:1.1rem;font-weight:600}
+.check-option:hover{border-color:var(--primary)}
+.check-option input{width:20px;height:20px;accent-color:var(--primary);margin-bottom:6px;cursor:pointer}
+.check-option:has(input:checked){border-color:var(--primary);background:#eef0ff}
+
+.multi-field,.dropdown-field{margin-bottom:12px}
+.multi-field label,.dropdown-field label{display:block;font-weight:600;margin-bottom:6px;font-size:.92rem}
+.multi-field label b,.dropdown-field label b{color:var(--primary-dark)}
+
+.feedback{margin:12px 0;padding:14px;border-radius:12px;font-weight:500}
+.feedback:empty{display:none}
+.feedback-correct{background:#dcfce7;color:#166534;border-left:4px solid var(--success)}
+.feedback-wrong{background:#fee2e2;color:#991b1b;border-left:4px solid var(--danger)}
+.feedback-warning{background:#fef3c7;color:#92400e;border-left:4px solid var(--warning)}
+.feedback-reveal{background:#ffedd5;color:#9a3412;border-left:4px solid #fb923c}
+
+.correct-box{margin-top:12px;padding:12px 14px;background:#f0fdf4;border-radius:10px;border:1px dashed var(--success)}
+.correct-label{font-weight:700;color:#166534;margin-bottom:4px}
+.correct-answer{font-weight:700;margin-bottom:6px;color:#0f5132}
+.correct-explain{font-size:.9rem;color:#444;line-height:1.5}
+
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn-submit{background:linear-gradient(135deg,#22c55e,#16a34a);flex:1;min-width:160px}
+.btn-submit:disabled{background:#cbd5e1}
+.btn-next{background:linear-gradient(135deg,var(--primary),var(--primary-dark));flex:1;min-width:160px}
+.btn-next:disabled{background:#cbd5e1}
+
+.attempt-info{margin-top:10px;font-size:.85rem;color:var(--muted);text-align:center;padding:8px 10px;background:#f8f8fc;border-radius:8px}
+.attempt-info b{color:var(--primary-dark)}
+
+#screen-results .card{text-align:center}
+.result-summary{margin:18px 0}
+.result-name{font-size:1.05rem;color:var(--muted);margin-bottom:6px}
+.result-name b{color:var(--text)}
+.result-score{font-family:'Baloo 2',cursive;font-size:clamp(2.5rem,10vw,4rem);color:var(--primary-dark);font-weight:800;line-height:1.1}
+.result-score small{font-size:.5em;color:var(--muted)}
+.stars{font-size:clamp(1.8rem,7vw,2.5rem);color:#ffd700;margin:6px 0;letter-spacing:4px}
+#result-message{font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:16px}
+
+.breakdown{text-align:left;margin:18px 0}
+.breakdown h3{font-family:'Baloo 2',cursive;color:var(--primary-dark);margin-bottom:10px;text-align:center}
+.breakdown-table-wrap{overflow-x:auto}
+.breakdown table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:340px}
+.breakdown th,.breakdown td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:center}
+.breakdown th{background:#eef0ff;color:var(--primary-dark)}
+.breakdown .total-row td{font-weight:700;background:#f8f8fc;font-size:1.02rem}
+
+.confetti{position:fixed;top:-10px;width:10px;height:14px;z-index:9999;pointer-events:none;animation:confetti-fall linear forwards}
+@keyframes confetti-fall{to{transform:translateY(105vh) rotate(720deg)}}
+
+.footer{text-align:center;color:rgba(255,255,255,.7);font-size:.8rem;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="mascot" id="mascot">🦉</div>
+    <h1>Kuis Himpunan</h1>
+    <p class="subtitle">Matematika Kelas 8 · Yuk uji pemahamanmu!</p>
+  </header>
+
+  <!-- SCREEN 1: IDENTITAS -->
+  <section id="screen-identity" class="screen active">
+    <div class="card">
+      <h2>👋 Halo, Siswa Hebat!</h2>
+      <p>Sebelum memulai petualangan himpunan ini, isi identitasmu dulu ya.</p>
+      <form id="identity-form">
+        <label for="student-name">Nama Lengkap</label>
+        <input type="text" id="student-name" required placeholder="Tulis namamu di sini" autocomplete="off">
+        <label for="student-class">Kelas</label>
+        <input type="text" id="student-class" required placeholder="Contoh: 8A" autocomplete="off">
+        <button type="submit">🚀 Mulai Kuis!</button>
+      </form>
+      <div class="note">
+        📌 <b>Aturan kuis:</b> Ada 10 soal dengan cara menjawab yang beragam. Skor maksimal <b>100</b>.
+        Kamu boleh <b>mengulang 1 kali</b> jika salah (skor soal itu dikurangi <b>2</b>).
+        Kamu <b>tidak bisa lanjut</b> ke soal berikutnya sebelum soal saat ini selesai.
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: KUIS -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-meta">
+      <div class="progress-info">
+        <span id="q-counter">Soal 1 dari 10</span>
+        <span id="score-display">Skor: 0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="card" id="question-card"></div>
+  </section>
+
+  <!-- SCREEN 3: HASIL -->
+  <section id="screen-results" class="screen">
+    <div class="card">
+      <h2 id="result-title">🎉 Kuis Selesai!</h2>
+      <div class="result-summary">
+        <div class="result-name" id="result-name"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="stars" id="result-stars"></div>
+        <p id="result-message"></p>
+      </div>
+      <div class="breakdown" id="breakdown"></div>
+      <button id="restart-btn">🔄 Ulangi Kuis</button>
+    </div>
+  </section>
+
+  <div class="footer">Kuis Interaktif Matematika · Materi Himpunan</div>
+</div>
+
+<script>
+/* ===================== DATA SOAL ===================== */
+const questions = [
+  {
+    id:1, type:'radio', badge:'Pilihan Ganda',
+    text:'Manakah dari kelompok berikut yang merupakan himpunan?',
+    options:[
+      {value:'A',label:'Kumpulan bunga indah'},
+      {value:'B',label:'Kumpulan hewan berkaki empat'},
+      {value:'C',label:'Kumpulan siswa pintar'}
+    ],
+    check:function(ans){return ans==='B';},
+    correctAnswer:'B. Kumpulan hewan berkaki empat',
+    explanation:'Himpunan harus terdefinisi dengan jelas (well-defined). Kata "indah" dan "pintar" bersifat subjektif (pendapat tiap orang berbeda), sedangkan "berkaki empat" jelas dan dapat ditentukan.'
+  },
+  {
+    id:2, type:'text', badge:'Isian Deskripsi',
+    text:'Sajikan himpunan B = {Januari, Juni, Juli} dengan metode deskripsi (kata-kata).',
+    hint:'Tulis ciri/sifat yang dimiliki ketiga anggota tersebut. Hindari sekadar mendaftar nama bulannya.',
+    placeholder:'Contoh: B = { ... }',
+    check:function(ans){
+      var s=normalize(ans);
+      return s.indexOf('bulan')>=0 && s.indexOf('j')>=0 &&
+        (s.indexOf('awal')>=0||s.indexOf('mulai')>=0||s.indexOf('depan')>=0||s.indexOf('huruf')>=0);
+    },
+    correctAnswer:'B = {nama-nama bulan yang diawali huruf J}',
+    explanation:'Metode deskripsi menjelaskan ciri anggota himpunan dengan kata-kata. Ketiga bulan itu sama-sama diawali huruf "J".'
+  },
+  {
+    id:3, type:'toggle', badge:'Pilih Simbol',
+    text:'Jika P = {bilangan asli kurang dari 10}, tentukan hubungan <b>10 ... P</b>. Pilih simbol yang tepat.',
+    options:[{value:'∈'},{value:'∉'}],
+    check:function(ans){return ans==='∉';},
+    correctAnswer:'10 ∉ P',
+    explanation:'Bilangan asli kurang dari 10 adalah {1,2,3,4,5,6,7,8,9}. Karena 10 tidak kurang dari 10, maka 10 bukan anggota P, ditulis 10 ∉ P.'
+  },
+  {
+    id:4, type:'checkbox', badge:'Pilih Beberapa',
+    text:'Tuliskan anggota himpunan C = {x | 5 < x < 10, x bilangan bulat}. Centang <b>semua</b> anggotanya:',
+    options:[
+      {value:'4',label:'4'},{value:'5',label:'5'},{value:'6',label:'6'},{value:'7',label:'7'},
+      {value:'8',label:'8'},{value:'9',label:'9'},{value:'10',label:'10'},{value:'11',label:'11'}
+    ],
+    check:function(ans){
+      var need=['6','7','8','9'];
+      var got=(ans||[]).slice().sort();
+      return JSON.stringify(got)===JSON.stringify(need.slice().sort());
+    },
+    correctAnswer:'{6, 7, 8, 9}',
+    explanation:'Bilangan bulat yang lebih besar dari 5 dan lebih kecil dari 10 adalah 6, 7, 8, 9. Angka 5 dan 10 tidak termasuk karena pakai tanda "<" (kurang dari, bukan ≤).'
+  },
+  {
+    id:5, type:'text', badge:'Notasi Pembentuk Himpunan',
+    text:'Sajikan himpunan D = {2, 4, 6, 8, 10} ke dalam bentuk notasi pembentuk himpunan (set-builder).',
+    hint:'Gunakan format {x | syarat anggotanya}. Sebutkan ciri bilangan anggotanya.',
+    placeholder:'Contoh: D = {x | ... }',
+    check:function(ans){
+      var s=normalize(ans);
+      return s.indexOf('genap')>=0 &&
+        (s.indexOf('10')>=0||s.indexOf('12')>=0||s.indexOf('≤')>=0||s.indexOf('<=')>=0||s.indexOf('kurang')>=0||s.indexOf('<')>=0);
+    },
+    correctAnswer:'D = {x | x bilangan genap kurang dari 12}  atau  D = {x | x bilangan genap, x ≤ 10}',
+    explanation:'Notasi pembentuk himpunan menuliskan syarat/ciri anggotanya, bukan mendaftar anggotanya. Anggota D adalah bilangan genap sampai 10.'
+  },
+  {
+    id:6, type:'text', badge:'Enumerasi',
+    text:"Diketahui K = {huruf pembentuk kata 'MATEMATIKA'}. Sebutkan anggota himpunan K dengan cara enumerasi. (ingat: anggota yang sama hanya ditulis satu kali)",
+    hint:'Pisahkan tiap huruf dengan koma. Huruf yang berulang cukup ditulis satu kali.',
+    placeholder:'Contoh: K = { ... }',
+    check:function(ans){
+      var letters=extractUniqueLetters(ans);
+      return JSON.stringify(letters.sort())===JSON.stringify(['A','E','I','K','M','T']);
+    },
+    correctAnswer:'K = {M, A, T, E, I, K}',
+    explanation:"Kata MATEMATIKA tersusun dari huruf M, A, T, E, M, A, T, I, K, A. Dalam himpunan, anggota yang sama hanya ditulis satu kali, sehingga K = {M, A, T, E, I, K} (6 anggota)."
+  },
+  {
+    id:7, type:'multi-text', badge:'Tiga Cara Penyajian',
+    text:'Nyatakan himpunan L = {bilangan prima antara 10 dan 30} dengan <b>ketiga cara</b> penyajian.',
+    fields:[
+      {label:'a) Cara enumerasi (daftar anggotanya):',placeholder:'L = { ... }'},
+      {label:'b) Cara notasi pembentuk himpunan:',placeholder:'L = {x | ... }'},
+      {label:'c) Cara deskripsi (kata-kata):',placeholder:'L = { ... }'}
+    ],
+    check:function(ans){
+      var en=normalize(ans[0]), sb=normalize(ans[1]), desc=normalize(ans[2]);
+      var nums=extractIntegers(ans[0]).sort(function(a,b){return a-b;});
+      var enumOk=JSON.stringify(nums)===JSON.stringify([11,13,17,19,23,29]);
+      var sbOk=sb.indexOf('prima')>=0 && (sb.indexOf('10')>=0||sb.indexOf('30')>=0||sb.indexOf('<')>=0||sb.indexOf('>')>=0);
+      var descOk=desc.indexOf('prima')>=0 && (desc.indexOf('antara')>=0||(desc.indexOf('10')>=0&&desc.indexOf('30')>=0));
+      return enumOk && sbOk && descOk;
+    },
+    correctAnswer:'a) {11, 13, 17, 19, 23, 29}  |  b) {x | x bilangan prima, 10 < x < 30}  |  c) {bilangan prima antara 10 dan 30}',
+    explanation:'Bilangan prima antara 10 dan 30: 11, 13, 17, 19, 23, 29. Bilangan prima hanya bisa dibagi 1 dan dirinya sendiri. Ketiga cara penyajian menghasilkan himpunan yang sama.'
+  },
+  {
+    id:8, type:'textarea', badge:'Uraian Terbuka',
+    text:'Buatlah sebuah contoh kelompok yang <b>BUKAN</b> merupakan himpunan dan jelaskan mengapa.',
+    hint:'Contoh biasanya memuat kata sifat yang bersifat pendapat pribadi. Jangan lupa tulis alasannya (gunakan kata "karena"/"sebab").',
+    placeholder:'Tulis contoh dan alasannya di sini...',
+    check:function(ans){
+      var s=normalize(ans);
+      var kw=['subjektif','tidak pasti','tidak jelas','tidak terdefinisi','tidak definit','well-defined','tidak well','relatif','tergantung','pendapat','selera','tidak objektif','karena','sebab','tidak sama','berbeda-beda','tidak konsisten'];
+      return (ans||'').trim().length>=15 && kw.some(function(k){return s.indexOf(k)>=0;});
+    },
+    correctAnswer:'Contoh: "Kumpulan lagu enak didengar" — BUKAN himpunan, karena kata "enak didengar" bersifat subjektif (pendapat tiap orang berbeda), sehingga tidak dapat ditentukan dengan jelas siapa/suatunya anggotanya.',
+    explanation:'Syarat himpunan: terdefinisi dengan jelas (well-defined). Jika kriteria memuat kata sifat yang subjektif (indah, enak, pintar, baik, favorit, keren), maka kelompok itu bukan himpunan.'
+  },
+  {
+    id:9, type:'text', badge:'Isian Kurung Kurawal',
+    text:'Jika M = {x | x² = 9, x bilangan bulat}, sebutkan anggota-anggotanya dalam kurung kurawal.',
+    hint:'Ingat: ada dua bilangan bulat yang jika dikuadratkan menghasilkan 9 (satu positif, satu negatif).',
+    placeholder:'M = { ... }',
+    check:function(ans){
+      var nums=extractIntegers(ans).sort(function(a,b){return a-b;});
+      return JSON.stringify(nums)===JSON.stringify([-3,3]);
+    },
+    correctAnswer:'M = {-3, 3}',
+    explanation:'x² = 9 maka x = 3 atau x = -3, karena (3)² = 9 dan (-3)² = 9. Keduanya bilangan bulat, sehingga M = {-3, 3}.'
+  },
+  {
+    id:10, type:'dropdown', badge:'Pilih ∈ atau ∉',
+    text:'Berikan tanda <b>∈</b> atau <b>∉</b> pada pernyataan berikut:',
+    fields:[
+      {label:'a) 1 ...... {bilangan genap}'},
+      {label:'b) {2} ...... {2, 4, 6}'},
+      {label:'c) Kucing ...... {hewan mamalia}'}
+    ],
+    check:function(ans){
+      return JSON.stringify(ans)===JSON.stringify(['∉','∉','∈']);
+    },
+    correctAnswer:'a) ∉   |   b) ∉   |   c) ∈',
+    explanation:'a) 1 bukan bilangan genap → ∉. b) {2} adalah himpunan bagian (subset) dari {2,4,6}, tetapi BUKAN anggotanya — anggota {2,4,6} adalah 2, 4, dan 6 (bilangan), bukan himpunan {2} → ∉. c) Kucing termasuk hewan mamalia → ∈.'
+  }
+];
+
+/* ===================== STATE ===================== */
+var state={
+  current:0, attempts:{}, points:{}, resolved:{}, revealed:{},
+  name:'', className:''
+};
+
+var correctMsgs=[
+  '🎉 Hebat! Jawabanmu tepat sekali!',
+  '🌟 Kerja bagus! Itu benar!',
+  '👏 Pintar! Lanjutkan!',
+  '✅ Tepat sekali, kamu jagoan!',
+  '🚀 Mantap! Jawabanmu benar!',
+  '🦉 Cerdas! Himpunan sudah kamu kuasai!'
+];
+var wrongMsgs=[
+  '🤔 Belum tepat, jangan menyerah ya!',
+  '💪 Coba sekali lagi, kamu pasti bisa!',
+  '🔄 Hampir benar, periksa lagi ya!',
+  '🧠 Pikirkan sekali lagi, kamu bisa!'
+];
+
+/* ===================== HELPERS ===================== */
+function normalize(s){
+  return (s||'').toLowerCase().trim().replace(/\s+/g,' ');
+}
+function extractIntegers(s){
+  var m=(s||'').match(/-?\d+/g);
+  if(!m) return [];
+  return m.map(Number);
+}
+function extractUniqueLetters(s){
+  var tokens=(s||'').toUpperCase().split(/[^A-Z]+/).filter(function(t){return t.length===1;});
+  var seen={}, out=[];
+  tokens.forEach(function(t){ if(!seen[t]){seen[t]=1; out.push(t);} });
+  return out;
+}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+/* ===================== RENDER ===================== */
+function renderCurrentQuestion(){
+  var q=questions[state.current];
+  var card=document.getElementById('question-card');
+  card.className='card';
+
+  var inputHtml='';
+  if(q.type==='radio'){
+    inputHtml='<div class="options">'+
+      q.options.map(function(o){
+        return '<label class="option"><input type="radio" name="q'+q.id+'" value="'+o.value+'">'+
+          '<span class="option-label"><b>'+o.value+'.</b> '+o.label+'</span></label>';
+      }).join('')+'</div>';
+  } else if(q.type==='toggle'){
+    inputHtml='<div class="toggle-group">'+
+      q.options.map(function(o){
+        return '<button type="button" class="toggle-btn" data-value="'+o.value+'">'+o.value+'</button>';
+      }).join('')+'</div>';
+  } else if(q.type==='checkbox'){
+    inputHtml='<div class="checkbox-grid">'+
+      q.options.map(function(o){
+        return '<label class="check-option"><input type="checkbox" value="'+o.value+'"><span>'+o.label+'</span></label>';
+      }).join('')+'</div>';
+  } else if(q.type==='text'){
+    inputHtml='<input type="text" class="text-input" id="answer-'+q.id+'" placeholder="'+(q.placeholder||'')+'" autocomplete="off">';
+  } else if(q.type==='textarea'){
+    inputHtml='<textarea class="text-area" id="answer-'+q.id+'" rows="4" placeholder="'+(q.placeholder||'')+'"></textarea>';
+  } else if(q.type==='multi-text'){
+    inputHtml=q.fields.map(function(f,i){
+      return '<div class="multi-field"><label>'+f.label+'</label>'+
+        '<input type="text" class="text-input" id="answer-'+q.id+'-'+i+'" placeholder="'+(f.placeholder||'')+'" autocomplete="off"></div>';
+    }).join('');
+  } else if(q.type==='dropdown'){
+    inputHtml=q.fields.map(function(f,i){
+      return '<div class="dropdown-field"><label>'+f.label+'</label>'+
+        '<select class="select-input" id="answer-'+q.id+'-'+i+'">'+
+        '<option value="">-- pilih --</option>'+
+        '<option value="∈">∈</option><option value="∉">∉</option></select></div>';
+    }).join('');
+  }
+
+  var isLast=state.current===questions.length-1;
+  var nextLabel=isLast?'🏁 Lihat Hasil':'Soal Berikutnya →';
+
+  card.innerHTML=
+    '<div class="question-header">'+
+      '<span class="question-number">Soal '+q.id+'</span>'+
+      '<span class="question-type-badge">'+q.badge+'</span>'+
+    '</div>'+
+    '<div class="question-text">'+q.text+'</div>'+
+    (q.hint?'<div class="question-hint">💡 '+q.hint+'</div>':'')+
+    '<div class="answer-area">'+inputHtml+'</div>'+
+    '<div class="feedback" id="feedback-'+q.id+'"></div>'+
+    '<div class="actions">'+
+      '<button type="button" class="btn-submit" id="submit-'+q.id+'">✅ Periksa Jawaban</button>'+
+      '<button type="button" class="btn-next" id="next-'+q.id+'" disabled>'+nextLabel+'</button>'+
+    '</div>'+
+    '<div class="attempt-info" id="attempt-'+q.id+'">Kamu punya <b>1x kesempatan mengulang</b> jika salah (denda <b>-2</b> tiap pengulangan).</div>';
+
+  attachListeners(q);
+  updateAttemptInfo(q);
+  updateProgressBar();
+}
+
+function attachListeners(q){
+  document.getElementById('submit-'+q.id).addEventListener('click',submitAnswer);
+  document.getElementById('next-'+q.id).addEventListener('click',goNext);
+  if(q.type==='toggle'){
+    var btns=document.querySelectorAll('#question-card .toggle-btn');
+    btns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        btns.forEach(function(b){b.classList.remove('active');});
+        btn.classList.add('active');
+      });
+    });
+  }
+  if(q.type==='text'||q.type==='textarea'){
+    document.getElementById('answer-'+q.id).addEventListener('keydown',function(e){
+      if(e.key==='Enter' && (q.type==='text')){ e.preventDefault(); submitAnswer(); }
+    });
+  }
+}
+
+/* ===================== ANSWER COLLECTION ===================== */
+function getAnswer(q){
+  if(q.type==='radio'){
+    var c=document.querySelector('input[name="q'+q.id+'"]:checked');
+    return c?c.value:null;
+  }
+  if(q.type==='toggle'){
+    var a=document.querySelector('#question-card .toggle-btn.active');
+    return a?a.getAttribute('data-value'):null;
+  }
+  if(q.type==='checkbox'){
+    var chk=document.querySelectorAll('#question-card input[type=checkbox]:checked');
+    return Array.prototype.map.call(chk,function(c){return c.value;});
+  }
+  if(q.type==='text'||q.type==='textarea'){
+    return document.getElementById('answer-'+q.id).value;
+  }
+  if(q.type==='multi-text'){
+    return q.fields.map(function(f,i){return document.getElementById('answer-'+q.id+'-'+i).value;});
+  }
+  if(q.type==='dropdown'){
+    return q.fields.map(function(f,i){return document.getElementById('answer-'+q.id+'-'+i).value;});
+  }
+  return null;
+}
+
+function hasInput(q,ans){
+  if(q.type==='radio'||q.type==='toggle') return ans!==null;
+  if(q.type==='checkbox') return Array.isArray(ans)&&ans.length>0;
+  if(q.type==='text'||q.type==='textarea') return typeof ans==='string'&&ans.trim()!=='';
+  if(q.type==='multi-text'||q.type==='dropdown')
+    return Array.isArray(ans)&&ans.length>0&&ans.every(function(a){return a&&String(a).trim()!=='';});
+  return false;
+}
+
+/* ===================== SUBMIT / NEXT ===================== */
+function submitAnswer(){
+  var idx=state.current;
+  var q=questions[idx];
+  if(state.resolved[idx]) return;
+
+  var ans=getAnswer(q);
+  if(!hasInput(q,ans)){
+    showFeedback('warning','⚠️ Isi jawaban dulu ya!');
+    shakeCard();
+    return;
+  }
+
+  state.attempts[idx]=(state.attempts[idx]||0)+1;
+  var attempt=state.attempts[idx];
+  var isCorrect=false;
+  try{ isCorrect=!!q.check(ans); }catch(e){ isCorrect=false; }
+
+  if(isCorrect){
+    state.points[idx]= attempt===1?10:8;
+    state.resolved[idx]=true;
+    showFeedback('correct',pick(correctMsgs));
+    appendCorrectBox(q);
+    document.getElementById('submit-'+q.id).disabled=true;
+    document.getElementById('next-'+q.id).disabled=false;
+    setMascot('happy');
+    bounceCard();
+  } else {
+    if(attempt>=2){
+      state.points[idx]=0;
+      state.resolved[idx]=true;
+      state.revealed[idx]=true;
+      showFeedback('reveal','💛 Kesempatan habis. Pelajari jawaban benar di bawah ini, lalu lanjut ke soal berikutnya ya.');
+      appendCorrectBox(q);
+      document.getElementById('submit-'+q.id).disabled=true;
+      document.getElementById('next-'+q.id).disabled=false;
+      disableInputs(q);
+      setMascot('sad');
+    } else {
+      showFeedback('wrong',pick(wrongMsgs)+' Kamu masih punya <b>1x kesempatan mengulang</b>. Jika benar saat mengulang, skor soal ini menjadi <b>8</b> (denda -2).');
+      setMascot('think');
+      shakeCard();
+    }
+  }
+  updateAttemptInfo(q);
+  updateScore();
+}
+
+function goNext(){
+  var idx=state.current;
+  if(!state.resolved[idx]) return;
+  state.current++;
+  if(state.current>=questions.length){
+    showResults();
+  } else {
+    renderCurrentQuestion();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+/* ===================== UI UPDATES ===================== */
+function showFeedback(type,msg){
+  var q=questions[state.current];
+  var fb=document.getElementById('feedback-'+q.id);
+  fb.className='feedback feedback-'+type;
+  fb.innerHTML=msg;
+}
+function appendCorrectBox(q){
+  var fb=document.getElementById('feedback-'+q.id);
+  if(fb.querySelector('.correct-box')) return;
+  var box=document.createElement('div');
+  box.className='correct-box';
+  box.innerHTML='<div class="correct-label">✅ Jawaban benar:</div>'+
+    '<div class="correct-answer">'+q.correctAnswer+'</div>'+
+    '<div class="correct-explain">📖 '+q.explanation+'</div>';
+  fb.appendChild(box);
+}
+function disableInputs(q){
+  var card=document.getElementById('question-card');
+  card.querySelectorAll('input,select,textarea,.toggle-btn').forEach(function(el){el.disabled=true;});
+}
+function shakeCard(){
+  var card=document.getElementById('question-card');
+  card.classList.add('shake');
+  setTimeout(function(){card.classList.remove('shake');},500);
+}
+function bounceCard(){
+  var card=document.getElementById('question-card');
+  card.classList.add('bounce');
+  setTimeout(function(){card.classList.remove('bounce');},600);
+}
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setMascot(mood){
+  var m=document.getElementById('mascot');
+  var map={default:'🦉',happy:'🤩',think:'🤔',sad:'😞',celebrate:'🎉'};
+  m.textContent=map[mood]||'🦉';
+}
+function updateScore(){
+  var t=0;
+  Object.keys(state.points).forEach(function(k){t+=state.points[k]||0;});
+  document.getElementById('score-display').textContent='Skor: '+t;
+}
+function updateProgressBar(){
+  var pct=(state.current/questions.length)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('q-counter').textContent='Soal '+(state.current+1)+' dari '+questions.length;
+}
+function updateAttemptInfo(q){
+  var el=document.getElementById('attempt-'+q.id);
+  if(!el) return;
+  var idx=state.current;
+  var att=state.attempts[idx]||0;
+  if(state.resolved[idx]){
+    if(state.revealed[idx]){
+      el.innerHTML='Kesempatan habis · Skor soal ini: <b>0</b>';
+    } else if(att===1){
+      el.innerHTML='✅ Benar langsung · Skor soal ini: <b>10</b>';
+    } else {
+      el.innerHTML='🟡 Benar setelah mengulang · Skor soal ini: <b>8</b> (denda -2)';
+    }
+  } else {
+    if(att===0){
+      el.innerHTML='Kamu punya <b>1x kesempatan mengulang</b> jika salah (denda <b>-2</b> tiap pengulangan).';
+    } else {
+      el.innerHTML='⚠️ Ini kesempatan mengulang (terakhir). Jika benar sekarang, skor = <b>8</b>.';
+    }
+  }
+}
+
+/* ===================== RESULTS ===================== */
+function showResults(){
+  showScreen('results');
+  var total=0;
+  Object.keys(state.points).forEach(function(k){total+=state.points[k]||0;});
+  document.getElementById('result-name').innerHTML='Hasil untuk: <b>'+state.name+'</b> · Kelas <b>'+state.className+'</b>';
+  document.getElementById('result-score').innerHTML=total+'<small>/100</small>';
+
+  var stars=1;
+  if(total>=90) stars=5; else if(total>=75) stars=4; else if(total>=60) stars=3; else if(total>=40) stars=2;
+  document.getElementById('result-stars').innerHTML='★'.repeat(stars)+'☆'.repeat(5-stars);
+
+  var msg;
+  if(total>=90) msg='🏆 Luar biasa! Kamu master himpunan!';
+  else if(total>=75) msg='🌟 Bagus sekali! Sedikit lagi menuju sempurna.';
+  else if(total>=60) msg='👍 Cukup baik. Yuk pelajari lagi biar makin mantap.';
+  else if(total>=40) msg='💪 Tetap semangat! Ayo ulangi materinya.';
+  else msg='📚 Jangan menyerah, pelajari lagi materinya ya. Kamu pasti bisa!';
+  document.getElementById('result-message').textContent=msg;
+
+  var br=document.getElementById('breakdown');
+  var html='<h3>Rincian Jawaban</h3><div class="breakdown-table-wrap"><table>'+
+    '<tr><th>Soal</th><th>Skor</th><th>Status</th></tr>';
+  questions.forEach(function(q,i){
+    var pts=state.points[i]||0;
+    var att=state.attempts[i]||0;
+    var status;
+    if(state.revealed[i]) status='🔴 Belum tepat';
+    else if(att===1) status='🟢 Benar langsung';
+    else status='🟡 Benar (mengulang)';
+    html+='<tr><td>Soal '+q.id+'</td><td>'+pts+'</td><td>'+status+'</td></tr>';
+  });
+  html+='<tr class="total-row"><td>Total</td><td>'+total+'</td><td>/ 100</td></tr></table></div>';
+  br.innerHTML=html;
+
+  if(total>=75) launchConfetti();
+  setMascot('celebrate');
+  updateProgressBarFull();
+}
+
+function updateProgressBarFull(){
+  document.getElementById('progress-fill').style.width='100%';
+}
+
+function launchConfetti(){
+  var colors=['#ffd700','#ff6b6b','#4ecdc4','#95e1d3','#f38181','#aa96da','#667eea'];
+  for(var i=0;i<70;i++){
+    var c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=(Math.random()*100)+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=(Math.random()*2)+'s';
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.width=(6+Math.random()*8)+'px';
+    c.style.height=(10+Math.random()*8)+'px';
+    document.body.appendChild(c);
+    (function(el){setTimeout(function(){el.remove();},5500);})(c);
+  }
+}
+
+function restart(){
+  state.current=0; state.attempts={}; state.points={}; state.resolved={}; state.revealed={};
+  state.name=''; state.className='';
+  showScreen('identity');
+  document.getElementById('identity-form').reset();
+  setMascot('default');
+  updateScore();
+}
+
+/* ===================== INIT ===================== */
+document.getElementById('identity-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var name=document.getElementById('student-name').value.trim();
+  var cls=document.getElementById('student-class').value.trim();
+  if(!name||!cls){
+    alert('Isi nama dan kelas dulu ya!');
+    return;
+  }
+  state.name=name; state.className=cls;
+  showScreen('quiz');
+  state.current=0;
+  renderCurrentQuestion();
+  updateScore();
+});
+document.getElementById('restart-btn').addEventListener('click',restart);
+</script>
+</body>
+</html>
